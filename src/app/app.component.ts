@@ -1,5 +1,11 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectorRef, Component, computed, effect } from '@angular/core';
+import {
+  ChangeDetectorRef,
+  Component,
+  computed,
+  effect,
+  inject,
+} from '@angular/core';
 import { NavigationEnd, Router, RouterOutlet } from '@angular/router';
 import { LoaderService } from '@service/loader.service';
 import { MenuItem } from 'primeng/api';
@@ -7,6 +13,7 @@ import { MenubarModule } from 'primeng/menubar';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { Observable } from 'rxjs';
 import { ProjectListComponent } from './project-list/project-list.component';
+import { CommonService } from '@service/common.service';
 
 @Component({
   selector: 'app-root',
@@ -22,12 +29,16 @@ import { ProjectListComponent } from './project-list/project-list.component';
   styleUrl: './app.component.scss',
 })
 export class AppComponent {
+  private commonService = inject(CommonService);
+
   title = 'empower';
   items: MenuItem[] | undefined;
   loading: boolean = false;
   loading$: Observable<boolean>;
   isLoading = computed(() => this.loaderService.loading());
   isSigninOrRegister = false;
+  isLoggedIn = computed(() => this.commonService.user() !== null);
+
   constructor(
     private loaderService: LoaderService,
     private cdr: ChangeDetectorRef,
@@ -43,7 +54,7 @@ export class AppComponent {
           this.isSigninOrRegister = false;
         }
       }
-    })
+    });
     this.items = [
       {
         label: 'HOME',
@@ -73,6 +84,16 @@ export class AppComponent {
         label: 'Contact',
         routerLink: 'contact',
       },
+
+      {
+        label: 'villages',
+        routerLink: 'villages',
+      },
     ];
+  }
+
+  logout() {
+    this.commonService.onLogout();
+    this.router.navigate(['/home']);
   }
 }

@@ -1,13 +1,28 @@
 import { Observable, catchError, of, map } from 'rxjs';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import { effect, Injectable, signal, Signal } from '@angular/core';
 import { environment } from '../environments/environment';
 
 @Injectable({
   providedIn: 'root',
 })
 export class CommonService {
-  constructor(private httpClient: HttpClient) {}
+  user = signal<any>(null);
+  constructor(private httpClient: HttpClient) {
+    const storedUser = localStorage.getItem('user');
+    if (storedUser) {
+      this.user.set(storedUser);
+    }
+
+    // Save to localStorage when the signal changes
+    effect(() => {
+      if (this.user()) {
+        localStorage.setItem('user', JSON.stringify(this.user()));
+      } else {
+        localStorage.removeItem('user');
+      }
+    });
+  }
 
   getStates(): Observable<any> {
     return this.httpClient
@@ -64,11 +79,9 @@ export class CommonService {
       );
   }
 
-  getProjects(pagenumber: 0, pagesize: 10): Observable<any> {
+  getProjects(payLoad: any): Observable<any> {
     return this.httpClient
-      .get<any>(
-        `${environment.apiUrl}/project?page=${pagenumber}&size=${pagesize}`
-      )
+      .get<any>(`${environment.apiUrl}/project??${payLoad} `)
       .pipe(
         map((projects) => {
           return projects;
@@ -148,6 +161,7 @@ export class CommonService {
       .post<any>(`${environment.apiUrl}/login`, payLoad)
       .pipe(
         map((response) => {
+          this.setUser(response);
           return response;
         }),
         catchError((error) => of(error))
@@ -159,10 +173,19 @@ export class CommonService {
       .post<any>(`${environment.apiUrl}/users/create`, payLoad)
       .pipe(
         map((response) => {
+          this.setUser(response);
           return response;
         }),
         catchError((error) => of(error))
       );
+  }
+
+  onLogout() {
+    this.user.set(null);
+  }
+
+  setUser(user: any) {
+    this.user.set(user);
   }
 
   getVillagesDemography(payLoad: any): Observable<any> {
