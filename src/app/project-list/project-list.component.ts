@@ -12,6 +12,7 @@ import { HardCodedInfo } from 'src/constants/HardCodedInfo';
 import { ActivatedRoute, Router } from '@angular/router';
 import { LoaderService } from '@service/loader.service';
 import { ProjectSponsorsComponent } from '../project-sponsors/project-sponsors.component';
+import { RoleDirective } from 'src/directives/role-access.directive';
 interface PageEvent {
   first: number;
   rows: number;
@@ -22,7 +23,12 @@ interface PageEvent {
   selector: 'app-projects',
   templateUrl: './project-list.component.html',
   standalone: true,
-  imports: [ImportsModule, ProjectComponent, ProjectSponsorsComponent],
+  imports: [
+    ImportsModule,
+    ProjectComponent,
+    ProjectSponsorsComponent,
+    RoleDirective,
+  ],
   providers: [MessageService, ConfirmationService, ProductService],
   styleUrl: './project-list.component.scss',
   styles: [
@@ -77,6 +83,8 @@ export class ProjectListComponent implements OnInit {
 
   // Store the project that will be passed to the dialog
   selectedProject: any;
+  datastatus: any;
+  serverError: boolean = false;
 
   constructor(
     private commonService: CommonService,
@@ -92,248 +100,39 @@ export class ProjectListComponent implements OnInit {
     this.getDistricts();
     this.status = [
       {
-        id: 1,
-        name: 'NEW',
-      },
-      {
-        id: 5,
-        name: 'waiting for Sponsors',
-      },
-
-      {
         id: 3,
         name: 'REJECTED',
+        status: 'REJECTED',
       },
       {
         id: 4,
         name: 'WORK IN PROGRESS',
+        status: 'WIP',
+      },
+      {
+        id: 5,
+        name: 'WAITING FOR SPONSORS',
+        status: 'WFD',
       },
 
       {
         id: 6,
         name: 'COMPLETED',
-      },
-      {
-        id: 7,
-        name: 'OPEN',
-      },
-    ];
-    this.categories = [
-      {
-        id: 23,
-        description: 'Bus shelter',
-        image: 'bus_shelter.png',
-      },
-      {
-        id: 22,
-        description: 'Library',
-        image: 'library.png',
-      },
-      {
-        id: 21,
-        description: 'Public Toilets',
-        image: 'public_toilets.png',
-      },
-      {
-        id: 20,
-        description: 'RO Plants',
-        image: 'ro_plants.png',
-      },
-      {
-        id: 19,
-        description: 'Schools',
-        image: 'schools.png',
-      },
-      {
-        id: 18,
-        description: 'Audio System',
-        image: 'project-1.jpg',
-      },
-      {
-        id: 17,
-        description: 'Computers',
-        image: 'project-1.jpg',
-      },
-      {
-        id: 16,
-        description: 'Sanitary Pad',
-        image: 'project-1.jpg',
-      },
-      {
-        id: 15,
-        description: 'Dustbins',
-        image: 'project-1.jpg',
-      },
-      {
-        id: 14,
-        description: 'Sports Kits',
-        image: 'project-1.jpg',
-      },
-      {
-        id: 13,
-        description: 'Paints',
-        image: 'project-1.jpg',
-      },
-      {
-        id: 12,
-        description: 'Cycles',
-        image: 'project-1.jpg',
-      },
-      {
-        id: 11,
-        description: 'Library',
-        image: 'project-1.jpg',
-      },
-      {
-        id: 10,
-        description: 'Toilets',
-        image: 'project-1.jpg',
-      },
-      {
-        id: 9,
-        description: 'RO Plant',
-        image: 'project-1.jpg',
-      },
-      {
-        id: 8,
-        description: 'Benches',
-        image: 'project-1.jpg',
-      },
-      {
-        id: 7,
-        description: 'Digital Boards',
-        image: 'project-1.jpg',
-      },
-      {
-        id: 6,
-        description: 'Solar Fencing',
-        image: 'project-1.jpg',
-      },
-      {
-        id: 5,
-        description: 'CC Cameras',
-        image: 'project-1.jpg',
-      },
-      {
-        id: 4,
-        description: 'Racks',
-        image: 'project-1.jpg',
-      },
-      {
-        id: 3,
-        description: 'Ceiling Fans',
-        image: 'project-1.jpg',
-      },
-      {
-        id: 2,
-        description: 'Class Rooms',
-        image: 'project-1.jpg',
-      },
-      {
-        id: 1,
-        description: 'Library Books',
-        image: 'project-1.jpg',
+        status: 'COMPLETED',
       },
     ];
 
-    this.projectSponsorDetails = [
-      {
-        createdBy: 'Admin',
-        createdDate: '2025-02-17T10:00:00',
-        lastUpdatedBy: 'Admin',
-        lastUpdatedDate: '2025-02-17T10:00:00',
+    const localStorageuser = JSON.parse(localStorage.getItem('user'));
+
+    if (localStorageuser?.roles[0].id == 3) {
+      this.status.push({
         id: 1,
-        firstName: 'Swetha',
-        lastName: 'R',
-        phoneNumber: '1234567890',
-        email: 'swetha.r@example.com',
-        address: null,
-        memoryOf: null,
-        village: null,
-        amount: '10000',
-        ModeofPayment: 'cash',
-      },
-      {
-        createdBy: null,
-        createdDate: null,
-        lastUpdatedBy: null,
-        lastUpdatedDate: null,
-        id: 2,
-        firstName: 'ZXCzxcxzc',
-        lastName: 'ZXCzxcxzc',
-        phoneNumber: 'zxcxzc',
-        email: 'xzcxzc',
-        address: '',
-        memoryOf: 'zxcxzc',
-        village: null,
-        amount: '20000',
-        ModeofPayment: 'Online',
-      },
-      {
-        createdBy: null,
-        createdDate: null,
-        lastUpdatedBy: null,
-        lastUpdatedDate: null,
-        id: 3,
-        firstName: 'asasda',
-        lastName: 'asasda',
-        phoneNumber: '9963376888',
-        email: 'asdada',
-        address: 'asdasdsad',
-        memoryOf: 'asdsad',
-        village: null,
-        amount: '30000',
-        ModeofPayment: 'online',
-      },
-      {
-        createdBy: null,
-        createdDate: null,
-        lastUpdatedBy: null,
-        lastUpdatedDate: null,
-        id: 4,
-        firstName: 'Venkat',
-        lastName: 'Venkat',
-        phoneNumber: '4121212121',
-        email: '',
-        address: '',
-        memoryOf: '',
-        village: null,
-        amount: '40000',
-        ModeofPayment: 'cash',
-      },
-      {
-        createdBy: null,
-        createdDate: null,
-        lastUpdatedBy: null,
-        lastUpdatedDate: null,
-        id: 5,
-        firstName: '',
-        lastName: '',
-        phoneNumber: '',
-        email: '',
-        address: '',
-        memoryOf: '',
-        village: null,
-        amount: '50000',
-        ModeofPayment: 'cash',
-      },
-      {
-        createdBy: null,
-        createdDate: null,
-        lastUpdatedBy: null,
-        lastUpdatedDate: null,
-        id: 6,
-        firstName: '',
-        lastName: '',
-        phoneNumber: '',
-        email: '',
-        address: '',
-        memoryOf: '',
-        village: null,
-        amount: '60000',
-        ModeofPayment: 'UPI',
-      },
-    ];
+        name: 'NEW',
+        status: 'NEW',
+      });
+    } else {
+      this.status = this.status.filter((status) => status.id != 1);
+    }
 
     this.activatedRoute.queryParams.subscribe((params) => {
       this.selectedcategory = parseInt(params['category']);
@@ -376,7 +175,25 @@ export class ProjectListComponent implements OnInit {
 
     this.commonService.getProjects(params).subscribe(
       (data: any) => {
-        this.projects = data.content;
+        if (!data.content) {
+          this.projects = [];
+          this.totalRecords = 0;
+          this.datastatus = data.status;
+          this.serverError = true;
+          return;
+        }
+
+        const localStorageuser = JSON.parse(localStorage.getItem('user'));
+
+        if (localStorageuser?.roles[0].id == 3) {
+          this.projects = data.content;
+        } else {
+          this.projects = data.content.filter(
+            (item: any) => item.statusCode != 'NEW'
+          );
+        }
+
+        this.serverError = false;
         this.projects.forEach((project: any) => {
           const sponsorAmount = project.sponsersList.reduce(
             (total, sponsor) => total + Number(sponsor.amount),
@@ -459,7 +276,14 @@ export class ProjectListComponent implements OnInit {
 
         for (var i = 0; i < data.length; i += 1) {
           if (data[i].projects.length > 0) {
-            this.categories.push(data[i].projects);
+            this.categories = [].concat.apply(
+              this.categories,
+              data[i].projects
+            );
+            // this.categories = [].concat.apply([], data[i].projects);
+            // this.categories = data[i].projects;
+            //  this.categories.concat(data[i].projects);
+            console.log(this.categories);
           }
         }
       },

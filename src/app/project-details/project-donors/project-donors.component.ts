@@ -13,6 +13,7 @@ import {
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
+import { RoleDirective } from 'src/directives/role-access.directive';
 
 export interface Product {
   id?: string;
@@ -37,6 +38,7 @@ export interface Product {
     ImportsModule,
     FormsModule,
     ReactiveFormsModule,
+    RoleDirective,
   ],
   templateUrl: './project-donors.component.html',
   styleUrl: './project-donors.component.scss',
@@ -73,13 +75,14 @@ export class ProjectDonorsComponent implements OnInit {
         ),
       ]),
       DonorsAddress: new FormControl('', [Validators.required]),
+      description: new FormControl('', [Validators.required]),
       DonorsMemoryOf: new FormControl('', [Validators.required]),
       DonorsAmount: new FormControl('', [Validators.required]),
       DonorsModeofPayment: new FormControl('', [Validators.required]),
     });
   }
   showdonor() {
-    this.projectDetailsService.showDonars().subscribe((data) => {
+    this.projectDetailsService.showDonars(this.projectData.id).subscribe((data) => {
       this.doners = data;
     });
   }
@@ -90,6 +93,7 @@ export class ProjectDonorsComponent implements OnInit {
       phoneNumber: this.donorForm.get('DonorsPhone')?.value,
       email: this.donorForm.get('DonorsEmail')?.value,
       address: this.donorForm.get('DonorsAddress')?.value,
+      description: this.donorForm.get('description')?.value,
       memoryOf: this.donorForm.get('DonorsMemoryOf')?.value,
       amount: this.donorForm.get('DonorsAmount')?.value,
       modeOfPayment: this.donorForm.get('DonorsModeofPayment')?.value,

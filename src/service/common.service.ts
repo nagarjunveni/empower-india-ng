@@ -8,10 +8,12 @@ import { environment } from '../environments/environment';
 })
 export class CommonService {
   user = signal<any>(null);
+  roles = signal<any[]>([]);
+
   constructor(private httpClient: HttpClient) {
     const storedUser = localStorage.getItem('user');
     if (storedUser) {
-      this.user.set(storedUser);
+      this.user.set(JSON.parse(storedUser));
     }
 
     // Save to localStorage when the signal changes
@@ -22,6 +24,12 @@ export class CommonService {
         localStorage.removeItem('user');
       }
     });
+
+    this.getUserRoles().subscribe((response) => {
+     if (response) {
+       this.roles.set(response);
+     }
+    })
   }
 
   getStates(): Observable<any> {
@@ -45,6 +53,7 @@ export class CommonService {
         catchError((error) => of(error))
       );
   }
+
   getMandals(districtCode: any): Observable<any> {
     return this.httpClient
       .get<any>(
@@ -81,7 +90,7 @@ export class CommonService {
 
   getProjects(payLoad: any): Observable<any> {
     return this.httpClient
-      .get<any>(`${environment.apiUrl}/project??${payLoad} `)
+      .get<any>(`${environment.apiUrl}/project?${payLoad} `)
       .pipe(
         map((projects) => {
           return projects;
@@ -168,12 +177,14 @@ export class CommonService {
       );
   }
 
+  // headers: { 'Content-Type': 'multipart/form-data' }
+
   register(payLoad: any): Observable<any> {
     return this.httpClient
-      .post<any>(`${environment.apiUrl}/users/create`, payLoad)
+      .post<any>(`${environment.apiUrl}/users`, payLoad)
       .pipe(
         map((response) => {
-          this.setUser(response);
+          //this.setUser(response);
           return response;
         }),
         catchError((error) => of(error))
@@ -188,11 +199,13 @@ export class CommonService {
     this.user.set(user);
   }
 
+  //4304
+
   getVillagesDemography(payLoad: any): Observable<any> {
     return (
       this.httpClient
         // .get<any>(`${environment.apiUrl}/villages/demography?${payLoad}`)
-        .get<any>(`${environment.apiUrl}/village?villageId=1`)
+        .get<any>(`${environment.apiUrl}/village/${payLoad}`)
         .pipe(
           map((response) => {
             return response;
@@ -211,5 +224,77 @@ export class CommonService {
         }),
         catchError((error) => of(error))
       );
+  }
+
+  saveVilageData(payLoad: any): Observable<any> {
+    return this.httpClient
+      .post<any>(`${environment.apiUrl}/village`, payLoad)
+      .pipe(
+        map((response) => {
+          return response;
+        }),
+        catchError((error) => of(error))
+      );
+  }
+
+  updateCommunityVilageData(payLoad: any): Observable<any> {
+    return this.httpClient
+      .put<any>(`${environment.apiUrl}/village/${payLoad.id}`, payLoad)
+      .pipe(
+        map((response) => {
+          return response;
+        }),
+        catchError((error) => of(error))
+      );
+  }
+
+  getSelectedSponsors(payLoad: any): Observable<any> {
+    return this.httpClient
+      .get<any>(`${environment.apiUrl}/donars/donar-project-info/10`)
+      .pipe(
+        map((response) => {
+          return response;
+        }),
+        catchError((error) => of(error))
+      );
+  }
+
+  getUserRoles(): Observable<any> {
+    return this.httpClient
+      .get<any>(`${environment.apiUrl}/roles`)
+      .pipe(
+        map((response) => {
+          return response;
+        }),
+        catchError((error) => of(error))
+      );
+  }
+
+  getUsers(query = "", roleId = 0, districtId = 0) {
+    let url = `${environment.apiUrl}/users`;
+    let queryParam = "";
+    if (query) {
+      queryParam += `?query=${query}`;
+    }
+    if (roleId) {
+      if (queryParam) {
+        queryParam += `&roleId=${roleId}`;
+      } else {
+        queryParam = `?roleId=${roleId}`
+      }
+    }
+    if (districtId) {
+      if (queryParam) {
+        queryParam += `&districtId=${districtId}`;
+      } else {
+        queryParam = `?districtId=${districtId}`
+      }
+    }
+    return this.httpClient.get<any>(url + queryParam).pipe(
+      map((response) => {
+        return response;
+      }),
+      catchError((error) => of(error))
+    );
   }
 }

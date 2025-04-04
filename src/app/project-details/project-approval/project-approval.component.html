@@ -2,6 +2,16 @@
   <div class="row mb-4">
     <div class="project-detail-h-set">
       <h4>Project Estimation Details</h4>
+      @if (profileImageShowHide()) {
+      <!-- <img
+        id="show-code-thumbnail"
+        class="show-code-thumbnail-dark __web-inspector-hide-shortcut__"
+        alt="Photo 1.jpg"
+        x-bind:src="selectedFile?.base64?.data"
+        x-bind:alt="selectedFile?.name"
+        [src]="localStorageuserimage()"
+      /> -->
+      }
     </div>
     <div class="row tab-input-data">
       <div class="project-detail-set col-3">
@@ -9,43 +19,68 @@
           Project Estimation <span>(Inc. Maintenance 3 Years)</span>
         </div>
         <div class="project-detail-set-v mt-2">
+          @if (!localStorageuser()) {
+          <div>₹ {{ approvalForm.get("ProjectEstimation").value }} /-</div>
+          } @else {
           <input
             pInputText
             id="ProjectEstimation"
             formControlName="ProjectEstimation"
             aria-describedby="ProjectEstimation"
+            *appHasRole="[3]"
           />
+          }
         </div>
       </div>
       <div class="project-detail-set col-2">
-        <div class="project-detail-set-h">Govt. Share %</div>
+        <div class="project-detail-set-h">
+          Govt. Share % (₹ {{ governmentShareAmount }}/-)
+        </div>
         <div class="project-detail-set-v mt-2">
+          @if (!localStorageuser()) {
+          <div>{{ approvalForm.get("GovtShare").value }} %</div>
+          } @else {
           <input
             pInputText
             id="GovtShare"
             formControlName="GovtShare"
             aria-describedby="GovtShare"
+            *appHasRole="[3]"
           />
+          }
         </div>
       </div>
       <div class="project-detail-set col-2">
-        <div class="project-detail-set-h">Private Share %</div>
+        <div class="project-detail-set-h">
+          Private Share % (₹
+          {{
+            approvalForm.get("GovtShare").value
+              ? (approvalForm.get("ProjectEstimation").value || 0) -
+                governmentShareAmount
+              : 0
+          }}/-)
+        </div>
         <div class="project-detail-set-v mt-2">
+          @if (!localStorageuser()) {
+          <div>{{ approvalForm.get("PublicShare").value }} %</div>
+          } @else {
           <input
             pInputText
             id="PublicShare"
             formControlName="PublicShare"
             aria-describedby="PublicShare"
+            *appHasRole="[3]"
           />
-
-          <!-- <p-inputNumber inputId="integeronly" formControlName="PublicShare" /> -->
+          }
         </div>
       </div>
       <div class="project-detail-set col-2">
         <div class="project-detail-set-h" style="color: #fff">.</div>
+        @if (localStorageuser()) {
         <div class="project-detail-set-v mt-2">
           <button class="submit-btn-m">Update</button>
         </div>
+        }
       </div>
     </div>
   </div>

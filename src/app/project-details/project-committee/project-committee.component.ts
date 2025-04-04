@@ -12,6 +12,7 @@ import {
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
+import { RoleDirective } from 'src/directives/role-access.directive';
 
 export interface Product {
   id?: string;
@@ -36,6 +37,7 @@ export interface Product {
     ImportsModule,
     FormsModule,
     ReactiveFormsModule,
+    RoleDirective,
   ],
   templateUrl: './project-committee.component.html',
   styleUrl: './project-committee.component.scss',
@@ -46,23 +48,7 @@ export class ProjectCommitteeComponent implements OnInit {
   products!: Product[];
   sidebarVisible: boolean = false;
   updatecommitteeForm: FormGroup = new FormGroup({});
-  Committee: any = [
-    {
-      id: 1,
-      firstName: 'Swetha',
-      lastName: 'R',
-      fatherName: 'Satya',
-      address: '123 Main Street, Jax',
-      phoneNumber: '555-1234',
-      email: 'swetha.r@gmail.com',
-      recordType: 'active',
-      villageId: 101,
-      createdBy: 'Admin',
-      createdDate: '2025-02-17T09:30:00',
-      lastUpdatedBy: 'Admin',
-      lastUpdatedDate: '2025-02-17T09:30:00',
-    },
-  ];
+  Committee: any = [];
   editCommitee: boolean = false;
   constructor(
     private productService: ProductService,

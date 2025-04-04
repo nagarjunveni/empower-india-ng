@@ -20,18 +20,16 @@ import { ProductService } from '@service/productservice';
   imports: [ImportsModule, FormsModule, DropdownModule, ReactiveFormsModule],
   templateUrl: './register.component.html',
   styleUrl: './register.component.scss',
-  providers: [
-    MessageService,
-    ConfirmationService,
-    ProductService,
-
-  ],
+  providers: [MessageService, ConfirmationService, ProductService],
 })
 export class RegisterComponent {
   registerForm: FormGroup = new FormGroup({});
   submitted: boolean = false;
   loading = false;
   returnUrl: string;
+  FileUpload: any;
+  testpayload: any;
+  uploadimage: any;
   constructor(
     private formBuilder: FormBuilder,
     private route: ActivatedRoute,
@@ -65,8 +63,22 @@ export class RegisterComponent {
     return this.registerForm.controls;
   }
 
+  onUpload(event: any) {
+    // const file = event.files;
+    // console.log('...File', file);
+
+    const file = event.target?.files[0]; // Get the selected file
+    const formData = new FormData();
+
+    formData.append('file', file);
+
+    this.uploadimage = file;
+
+    this.FileUpload = formData;
+  }
+
   onSubmit() {
-    const payload = {
+    this.testpayload = {
       firstName: this.registerForm.get('firstName')?.value,
       aboutYourSelf: this.registerForm.get('aboutYourSelf')?.value,
       lastName: this.registerForm.get('lastName')?.value,
@@ -74,8 +86,56 @@ export class RegisterComponent {
       email: this.registerForm.get('email')?.value,
       userName: this.registerForm.get('userName')?.value,
       password: this.registerForm.get('password')?.value,
+      roles: [
+        {
+          id: 3,
+        },
+      ],
     };
-    this.commonService.register(payload).subscribe((data) => {
+
+    const formData = new FormData();
+    formData.append('profilePhoto', this.uploadimage); // Add the file
+    // formData.append('user', this.testpayload);
+    formData.append(
+      'user',
+      new Blob([JSON.stringify(this.testpayload)], { type: 'application/json' })
+    );
+
+    //  formData.append('user', this.testpayload);
+
+    // const testpayload {
+    //   'user': ... payload,
+    //   'profilePhoto': this.FileUpload
+    // }
+    // this.FileUpload ;
+
+    // this.FileUpload.append(
+    //   'firstName',
+    //   this.registerForm.get('firstName')?.value
+    // );
+    // this.FileUpload.append(
+    //   'lastName',
+    //   this.registerForm.get('lastName')?.value
+    // );
+    // this.FileUpload.append(
+    //   'aboutYourSelf',
+    //   this.registerForm.get('aboutYourSelf')?.value
+    // );
+    // this.FileUpload.append('email', this.registerForm.get('email')?.value);
+    // this.FileUpload.append(
+    //   'userName',
+    //   this.registerForm.get('userName')?.value
+    // );
+    // this.FileUpload.append(
+    //   'password',
+    //   this.registerForm.get('password')?.value
+    // );
+    // this.FileUpload.append(
+    //   'phoneNumber',
+    //   this.registerForm.get('phoneNumber')?.value
+    // );
+
+    this.commonService.register(formData).subscribe((data) => {
       if (data) {
         this.registerForm.reset();
         if (data.id) {
@@ -84,5 +144,13 @@ export class RegisterComponent {
       }
     });
   }
-  onProfileUpload(event: any) {}
+  onProfileUpload(event: any) {
+    const file = event; // Get the selected file
+    this.uploadimage = event;
+    const formData = new FormData();
+
+    //formData.append('profilePhoto', file);
+
+    // this.FileUpload = formData;
+  }
 }

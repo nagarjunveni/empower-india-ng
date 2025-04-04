@@ -27,6 +27,7 @@ import { InstitutionsComponent } from './institutions/institutions.component';
 import { LandUtilizationComponent } from './land-utilization/land-utilization.component';
 import { MainOccupationComponent } from './main-occupation/main-occupation.component';
 import { UnemployedYouthComponent } from './unemployed-youth/unemployed-youth.component';
+import { RoleDirective } from 'src/directives/role-access.directive';
 
 interface PageEvent {
   first: number;
@@ -54,6 +55,7 @@ interface PageEvent {
     LandUtilizationComponent,
     MainOccupationComponent,
     UnemployedYouthComponent,
+    RoleDirective,
   ],
   providers: [MessageService, ConfirmationService, ProductService],
   templateUrl: './villages-demography.component.html',
@@ -80,11 +82,54 @@ export class VillagesDemographyComponent implements OnInit {
   CommunityPopulationData: any = [];
   CommunityOptions: any = [];
   selectedCommunity: any = {};
-
+  vilagEditMode: boolean = false;
   selectedDistrict: any = {};
   selectedMandal: any = {};
   selectedVilage: any = {};
-
+  religionData: any = [
+    {
+      id: 1,
+      name: 'Hindus',
+    },
+    {
+      id: 2,
+      name: 'Christians',
+    },
+    {
+      id: 3,
+      name: 'Muslims',
+    },
+    {
+      id: 4,
+      name: 'Buddhists',
+    },
+    {
+      id: 5,
+      name: 'Jains',
+    },
+    {
+      id: 6,
+      name: 'Sikhs',
+    },
+  ];
+  languageData: any = [
+    {
+      id: 1,
+      name: 'Telugu',
+    },
+    {
+      id: 2,
+      name: 'Hindi',
+    },
+    {
+      id: 3,
+      name: 'Urdu',
+    },
+    {
+      id: 4,
+      name: 'English',
+    },
+  ];
   districts: any = [];
   mandals: any = [];
   villages: any = [];
@@ -92,6 +137,7 @@ export class VillagesDemographyComponent implements OnInit {
   communityWisePopulationVisible: boolean = false;
   villageForm: FormGroup = new FormGroup({});
   GeolocationError = '';
+  timeZone: string = '';
   Latitude: number;
   longitude: number;
   constructor(
@@ -103,9 +149,28 @@ export class VillagesDemographyComponent implements OnInit {
   ) {}
 
   ngOnInit() {
+    this.timeZone = this.getTimeZone();
     this.getDistricts();
     this.villagelookups();
-    this.commonService.getVillagesDemography(1).subscribe((data: any) => {
+    //this.getVillagesDemography();
+  }
+
+  reFreshVilageData(event: boolean) {
+    if (event) {
+      this.getVillagesDemography(this.selectedVilage.id);
+    }
+  }
+
+  ShowVilage() {
+    if (this.selectedVilage?.id) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  getVillagesDemography(id: any) {
+    this.commonService.getVillagesDemography(id).subscribe((data: any) => {
       this.getVillagesDemographyData = data;
       this.unEmployedYouthVillage =
         this.getVillagesDemographyData.unEmployedYouthVillage;
@@ -122,17 +187,19 @@ export class VillagesDemographyComponent implements OnInit {
       this.CommunityPopulationData = this.getVillagesDemographyData.populations;
     });
   }
-
   createVillageForm() {
     this.villageForm = new FormGroup({
-      Village: new FormControl('', [Validators.required]),
-      Panchayat: new FormControl('', [Validators.required]),
-      District: new FormControl('', [Validators.required]),
-      Mandal: new FormControl('', [Validators.required]),
+      // Village: new FormControl('', [Validators.required]),
+      // Panchayat: new FormControl('', [Validators.required]),
+      // District: new FormControl('', [Validators.required]),
+      // Mandal: new FormControl('', [Validators.required]),
+      area: new FormControl('', [Validators.required]),
       Religion: new FormControl('', [Validators.required]),
-      TimeZone: new FormControl('', [Validators.required]),
+      Language: new FormControl('', [Validators.required]),
+      pinCode: new FormControl('', [Validators.required]),
       Boundaries: new FormControl('', [Validators.required]),
       Geographical: new FormControl('', [Validators.required]),
+      totalHouse: new FormControl('', [Validators.required]),
       Population: new FormControl('', [Validators.required]),
       PopulationMale: new FormControl('', [Validators.required]),
       PopulationFemale: new FormControl('', [Validators.required]),
@@ -140,6 +207,10 @@ export class VillagesDemographyComponent implements OnInit {
       PopulationAboveEighteenFeMale: new FormControl('', [Validators.required]),
       PopulationAbove60Male: new FormControl('', [Validators.required]),
       PopulationAbove60FeMale: new FormControl('', [Validators.required]),
+    });
+
+    this.villageForm.patchValue({
+      TimeZone: this.timeZone,
     });
   }
 
@@ -192,7 +263,8 @@ export class VillagesDemographyComponent implements OnInit {
   }
 
   vilageChange(event: any) {
-    this.projectDMVSearch();
+    // this.projectDMVSearch();
+    this.getVillagesDemography(event.value.id);
   }
   villagelookups() {
     this.commonService.villagelookups().subscribe((data: any) => {
@@ -206,6 +278,25 @@ export class VillagesDemographyComponent implements OnInit {
   editVillage() {
     this.createVillageForm();
     this.villageFormVisible = true;
+    this.vilagEditMode = true;
+    this.villageForm.patchValue({
+      area: this.getVillagesDemographyData.area,
+      Religion: this.religionData[0].id,
+      Language: this.languageData[0].id,
+      pinCode: this.getVillagesDemographyData.pinCode,
+      Boundaries: this.getVillagesDemographyData.boundariesVillage,
+      Geographical: this.getVillagesDemographyData.geographicalArea,
+      totalHouse: this.getVillagesDemographyData.noOfHouses,
+      Population: this.getVillagesDemographyData.totalPopulation,
+      PopulationMale: this.getVillagesDemographyData.adultMalePopulation,
+      PopulationFemale: this.getVillagesDemographyData.adultFemalePopulation,
+      PopulationAboveEighteenMale:
+        this.getVillagesDemographyData.childMalePopulation,
+      PopulationAboveEighteenFeMale:
+        this.getVillagesDemographyData.childFemalePopulation,
+      PopulationAbove60Male: this.getVillagesDemographyData.area,
+      PopulationAbove60FeMale: this.getVillagesDemographyData.area,
+    });
   }
 
   getLocation() {
@@ -221,6 +312,58 @@ export class VillagesDemographyComponent implements OnInit {
       );
     } else {
       this.GeolocationError = 'Geolocation is not supported by this browser.';
+    }
+  }
+
+  getTimeZone() {
+    var offset = new Date().getTimezoneOffset(),
+      o = Math.abs(offset);
+    return (
+      (offset < 0 ? '+' : '-') +
+      ('00' + Math.floor(o / 60)).slice(-2) +
+      ':' +
+      ('00' + (o % 60)).slice(-2)
+    );
+  }
+
+  updateVillageDataForm() {
+    this.villageFormVisible = false;
+    const payload = {
+      id: this.getVillagesDemographyData.id,
+      villageId:
+        this.getVillagesDemographyData.villageId ?? this.selectedVilage.id,
+      noOfHouses: this.villageForm.value.totalHouse,
+      totalPopulation: this.villageForm.value.Population,
+      boundariesVillage: this.villageForm.value.Boundaries,
+      geographicalArea: this.villageForm.value.Geographical,
+      adultMalePopulation: this.villageForm.value.PopulationMale,
+      adultFemalePopulation: this.villageForm.value.PopulationFemale,
+      childMalePopulation: this.villageForm.value.PopulationAboveEighteenMale,
+      childFemalePopulation:
+        this.villageForm.value.PopulationAboveEighteenFeMale,
+      above60Male: this.villageForm.value.PopulationAbove60Male,
+      above60Female: this.villageForm.value.PopulationAbove60FeMale,
+      area: this.villageForm.value.area,
+      latitude: this.Latitude,
+      longitude: this.longitude,
+      pinCode: this.villageForm.value.pinCode,
+    };
+    // console.log(payload);
+    if (this.vilagEditMode) {
+      this.commonService.saveVilageData(payload).subscribe((data) => {
+        if (data) {
+          this.villageForm.reset();
+          this.getVillagesDemography(this.selectedVilage.id);
+        }
+      });
+    } else {
+      this.commonService
+        .updateCommunityVilageData(payload)
+        .subscribe((data) => {
+          if (data) {
+            this.villageForm.reset();
+          }
+        });
     }
   }
 }
