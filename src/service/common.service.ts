@@ -125,7 +125,7 @@ export class CommonService {
 
   saveProject(payLoad: any): Observable<any> {
     return this.httpClient
-      .post<any>(`${environment.apiUrl}/project`, payLoad)
+      .post<any>(`${environment.apiUrl}/project/project-image`, payLoad)
       .pipe(
         map((response) => {
           return response;
@@ -136,7 +136,7 @@ export class CommonService {
 
   updateProject(payLoad: any): Observable<any> {
     return this.httpClient
-      .put<any>(`${environment.apiUrl}/project`, payLoad)
+      .put<any>(`${environment.apiUrl}/project/project-image`, payLoad)
       .pipe(
         map((response) => {
           return response;
@@ -218,7 +218,7 @@ export class CommonService {
     return (
       this.httpClient
         // .get<any>(`${environment.apiUrl}/villages/demography?${payLoad}`)
-        .get<any>(`${environment.apiUrl}/village/${payLoad}`)
+        .get<any>(`${environment.apiUrl}/village/village-project/4304`)
         .pipe(
           map((response) => {
             return response;
@@ -307,5 +307,10 @@ export class CommonService {
       }),
       catchError((error) => of(error))
     );
+  }
+
+  activeDeActiveUser(userId: Number, isActive: number) {
+    let url = `${environment.apiUrl}/users/${userId}/status?isActive=${isActive}`;
+    return this.httpClient.put<any>(url, {});
   }
 }
