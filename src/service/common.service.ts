@@ -9,6 +9,7 @@ import { environment } from '../environments/environment';
 export class CommonService {
   user = signal<any>(null);
   roles = signal<any[]>([]);
+  projectStatus = signal<any[]>([]);
 
   constructor(private httpClient: HttpClient) {
     const storedUser = localStorage.getItem('user');
@@ -30,6 +31,21 @@ export class CommonService {
         this.roles.set(response);
       }
     });
+
+    this.getProjectStatus().subscribe((response) => {
+      if (response) {
+        this.projectStatus.set(response);
+      }
+    });
+  }
+
+  getProjectStatus(): Observable<any> {
+    return this.httpClient.get<any[]>(`${environment.apiUrl}/status`).pipe(
+      map((response) => {
+        return response.filter((status) => !status.isDeleted);
+      }),
+      catchError((error) => of(error))
+    );
   }
 
   getStates(): Observable<any> {
@@ -136,7 +152,7 @@ export class CommonService {
 
   updateProject(payLoad: any): Observable<any> {
     return this.httpClient
-      .put<any>(`${environment.apiUrl}/project/project-image`, payLoad)
+      .put<any>(`${environment.apiUrl}/project`, payLoad)
       .pipe(
         map((response) => {
           return response;
@@ -156,9 +172,9 @@ export class CommonService {
       );
   }
 
-  getAllSponsers(): Observable<any> {
+  getAllSponsers(payload: any): Observable<any> {
     return this.httpClient
-      .get<any>(`${environment.apiUrl}/donars/all-donars`)
+      .get<any>(`${environment.apiUrl}/donars/all-donars?${payload}`)
       .pipe(
         map((allSponsors) => {
           return allSponsors;
@@ -218,7 +234,7 @@ export class CommonService {
     return (
       this.httpClient
         // .get<any>(`${environment.apiUrl}/villages/demography?${payLoad}`)
-        .get<any>(`${environment.apiUrl}/village/village-project/4304`)
+        .get<any>(`${environment.apiUrl}/village/village-project/${payLoad}`)
         .pipe(
           map((response) => {
             return response;
@@ -261,9 +277,9 @@ export class CommonService {
       );
   }
 
-  getSelectedSponsors(payLoad: any): Observable<any> {
+  getSelectedSponsors(donarId: any): Observable<any> {
     return this.httpClient
-      .get<any>(`${environment.apiUrl}/donars/donar-project-info/10`)
+      .get<any>(`${environment.apiUrl}/donars/donar-project-info/${donarId}`)
       .pipe(
         map((response) => {
           return response;
@@ -323,5 +339,27 @@ export class CommonService {
   activeDeActiveUser(userId: Number, isActive: number) {
     let url = `${environment.apiUrl}/users/${userId}/status?isActive=${isActive}`;
     return this.httpClient.put<any>(url, {});
+  }
+
+  getGalleryImages(): Observable<any> {
+    return this.httpClient
+      .get<any>(`${environment.apiUrl}/gallery-images/`)
+      .pipe(
+        map((response) => {
+          return response;
+        }),
+        catchError((error) => of(error))
+      );
+  }
+
+  addNewImages(payLoad: any): Observable<any> {
+    return this.httpClient
+      .post<any>(`${environment.apiUrl}/gallery-images/uploadImage`, payLoad)
+      .pipe(
+        map((res) => {
+          return res;
+        }),
+        catchError((error) => of(error))
+      );
   }
 }

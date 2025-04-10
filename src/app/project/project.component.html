@@ -123,10 +123,20 @@
 
         <h4 class="mt-1">Project Details</h4>
 
-        <div class="col-12">
+        <!-- <div class="col-12">
           <div class="d-flex gap-3">
-            <span class="project-type">Project Type </span>
+            <span class="project-type">Project Status </span>
             <div class="d-flex gap-3 align-center">
+              <div class="d-flex gap-2 align-center project-radio">
+                <input
+                  class="radio-button-style"
+                  type="radio"
+                  value="Draft"
+                  formControlName="projectNeed"
+                />
+                <label class="form-label project-type" for="Draft">Draft</label>
+              </div>
+
               <div class="d-flex gap-2 align-center project-radio">
                 <input
                   class="radio-button-style"
@@ -149,7 +159,7 @@
               </div>
             </div>
           </div>
-        </div>
+        </div> -->
 
         <div class="col-6">
           <label for="category" class="formbuilder-select-label form-label"
@@ -269,11 +279,12 @@
         <button
           *ngIf="addNewProject"
           type="submit"
-          label="Save"
+          label="Save as Draft"
           class="submit-btn"
         >
-          Save
+          Save as Draft
         </button>
+
         <button
           *ngIf="updateExistingProject"
           type="submit"

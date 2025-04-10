@@ -16,6 +16,9 @@ import { HardCodedInfo } from 'src/constants/HardCodedInfo';
 import { DropdownModule } from 'primeng/dropdown';
 import { ToggleButtonModule } from 'primeng/togglebutton';
 import { InputSwitchModule } from 'primeng/inputswitch';
+import { RoleDirective } from 'src/directives/role-access.directive';
+import { ConfirmationService, MessageService } from 'primeng/api';
+import { ImportsModule } from '../imports';
 
 @Component({
   selector: 'app-users',
@@ -27,10 +30,13 @@ import { InputSwitchModule } from 'primeng/inputswitch';
     FormsModule,
     ReactiveFormsModule,
     DropdownModule,
-    InputSwitchModule
+    InputSwitchModule,
+    RoleDirective,
+    ImportsModule,
   ],
   templateUrl: './users.component.html',
   styleUrl: './users.component.scss',
+  providers: [MessageService, ConfirmationService],
 })
 export class UsersComponent {
   users: any[] = [];
@@ -41,12 +47,15 @@ export class UsersComponent {
   selectedDistrict: any = {};
   selectedRole: any = {};
   searchQuery: string = '';
+  AddEditUser: string = 'Add User';
   roles = computed(() =>
     this.commonService.roles().filter((role) => [3, 4, 5].includes(role.id))
   );
-
+  useredit: boolean = false;
   private formBuilder = inject(FormBuilder);
   private commonService = inject(CommonService);
+  private messageService = inject(MessageService);
+  selectedEditUser: null;
 
   get f() {
     return this.userForm.controls;
@@ -60,6 +69,7 @@ export class UsersComponent {
 
   createUserForm() {
     this.userForm = this.formBuilder.group({
+      id: new FormControl(''),
       firstName: ['', Validators.required],
       lastName: ['', Validators.required],
       phoneNumber: new FormControl(null, [
@@ -100,10 +110,14 @@ export class UsersComponent {
   onHideDialog() {
     this.addUserFlag = false;
     this.userForm.reset();
+    this.useredit = false;
+    this.userForm.get('password').setValidators([Validators.required]);
   }
 
   addUser() {
+    this.AddEditUser = 'Add User';
     const userData = {
+      id: this.userForm.get('id')?.value,
       firstName: this.userForm.get('firstName')?.value,
       aboutYourSelf: this.userForm.get('aboutYourSelf')?.value,
       lastName: this.userForm.get('lastName')?.value,
@@ -112,17 +126,29 @@ export class UsersComponent {
       userName: this.userForm.get('userName')?.value,
       password: this.userForm.get('password')?.value,
       roles: [this.userForm.get('role')?.value],
-      districtId: this.userForm.get('assignedDistrict')?.value.id,
+      districtId: this.userForm.get('assignedDistrict')?.value?.id
+        ? this.userForm.get('assignedDistrict')?.value?.id
+        : null,
     };
     const formData = new FormData();
-
+    if (this.useredit) {
+      delete userData['password'];
+    }
     formData.append(
       'user',
       new Blob([JSON.stringify(userData)], { type: 'application/json' })
     );
 
     this.commonService.register(formData).subscribe((data) => {
-      if (data) {
+      if (data.error) {
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail:
+            data.error ??
+            'The application has encountered an unknown error. Please try again later.',
+        });
+      } else {
         this.getAllUsers();
         this.addUserFlag = false;
       }
@@ -138,7 +164,7 @@ export class UsersComponent {
         this.users = data;
         (this.users || []).forEach((user) => {
           user.isEnabled = user.isEnabled === 1 ? true : false;
-        })
+        });
       });
   }
 
@@ -172,9 +198,11 @@ export class UsersComponent {
   }
 
   activeInactiveChange(event, user) {
-    this.commonService.activeDeActiveUser(user.id, event.value ? 1 : 0).subscribe(data => {
-      this.getAllUsers();
-    })
+    this.commonService
+      .activeDeActiveUser(user.id, event.value ? 1 : 0)
+      .subscribe((data) => {
+        this.getAllUsers();
+      });
   }
 
   reset() {
@@ -182,5 +210,39 @@ export class UsersComponent {
     this.selectedDistrict = null;
     this.selectedRole = null;
     this.getAllUsers();
+  }
+
+  editUsers(user) {
+    this.selectedEditUser = user?.id;
+    this.useredit = true;
+    this.AddEditUser = 'Edit User';
+    this.addUserFlag = true;
+    // this.districts = await lastValueFrom(this.commonService.getDistricts());
+    const selectedDistrict = this.districts.find(
+      (d) => d.id == user.districtId
+    );
+    // this.userForm.removeControl('password');
+    // this.userForm.controls['password'].setValue('****');
+    this.userForm.patchValue({
+      id: user.id,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      phoneNumber: user.phoneNumber,
+      email: user.email,
+      userName: user.userName,
+      role: user.roles[0],
+      assignedDistrict: selectedDistrict,
+    });
+
+    this.userForm.get('password').clearValidators();
+  }
+  addNewUser() {
+    // this.createUserForm();
+    // this.userForm.addControl(
+    //   'password',
+    //   this.formBuilder.control('', [Validators.required])
+    // );
+    this.useredit = false;
+    this.addUserFlag = true;
   }
 }
