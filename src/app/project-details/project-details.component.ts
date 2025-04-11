@@ -59,8 +59,16 @@ export class ProjectDetailsComponent implements OnInit {
       icon: 'https://primefaces.org/cdn/primeng/images/demo/avatar/amyelsner.png',
     },
     {
-      label: 'Committee',
+      label: 'Governance Body Members',
       icon: 'https://primefaces.org/cdn/primeng/images/demo/avatar/onyamalimba.png',
+    },
+    {
+      label: 'Bank Details',
+      icon: 'https://primefaces.org/cdn/primeng/images/demo/avatar/ionibowcher.png',
+    },
+    {
+      label: 'Project Publish',
+      icon: 'https://primefaces.org/cdn/primeng/images/demo/avatar/ionibowcher.png',
     },
     {
       label: 'Sponsors',
@@ -71,11 +79,7 @@ export class ProjectDetailsComponent implements OnInit {
       icon: 'https://primefaces.org/cdn/primeng/images/demo/avatar/ionibowcher.png',
     },
     {
-      label: 'Bank Details',
-      icon: 'https://primefaces.org/cdn/primeng/images/demo/avatar/ionibowcher.png',
-    },
-    {
-      label: 'Project Publish',
+      label: 'KickOff',
       icon: 'https://primefaces.org/cdn/primeng/images/demo/avatar/ionibowcher.png',
     },
     {
@@ -91,11 +95,6 @@ export class ProjectDetailsComponent implements OnInit {
       icon: 'https://primefaces.org/cdn/primeng/images/demo/avatar/ionibowcher.png',
       isDisabled: true,
     },
-    {
-      label: 'KickOff',
-      icon: 'https://primefaces.org/cdn/primeng/images/demo/avatar/ionibowcher.png',
-      isDisabled: true,
-    },
   ];
   fromPage = 'project';
 
@@ -105,11 +104,13 @@ export class ProjectDetailsComponent implements OnInit {
 
   isTabDisabled(index: number): boolean {
     if (
-      this.product.status === 'New' ||
-      this.product.status?.toLowerCase() === 'waiting for donor'
+      this.product.statusCode?.toLowerCase() === 'draft' ||
+      this.product.statusCode?.toLowerCase() === 'wfa'
     ) {
       // Disable last 4 tabs when status is 'New' or 'Waiting FOR DONOR'
-      return index >= this.tabs.length - 4;
+      return index >= this.tabs.length - 6;
+    } else if (this.product.statusCode?.toLowerCase() === 'wfd') {
+      return index >= this.tabs.length - 3;
     }
     return false;
   }
@@ -120,9 +121,9 @@ export class ProjectDetailsComponent implements OnInit {
       // this.tabs.forEach((tab, index) => {
       //   tab.isDisabled = this.isTabDisabled(index);
       // });
-      this.getProjectDetails(params['projectId'])
+      this.getProjectDetails(params['projectId']);
       if (params['fromPage']) {
-        this.fromPage = params['fromPage']
+        this.fromPage = params['fromPage'];
       }
     });
   }
@@ -133,12 +134,12 @@ export class ProjectDetailsComponent implements OnInit {
       this.tabs.forEach((tab, index) => {
         tab.isDisabled = this.isTabDisabled(index);
       });
-    })
+    });
   }
 
   projectKickOff() {
-    this.projectDetailsService.kickOffProject(this.product.id).subscribe((data) => {
-
-    })
+    this.projectDetailsService
+      .kickOffProject(this.product.id)
+      .subscribe((data) => {});
   }
 }
