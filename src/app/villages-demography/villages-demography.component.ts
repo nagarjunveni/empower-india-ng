@@ -35,6 +35,7 @@ import { MainOccupationComponent } from './main-occupation/main-occupation.compo
 import { UnemployedYouthComponent } from './unemployed-youth/unemployed-youth.component';
 import { RoleDirective } from 'src/directives/role-access.directive';
 import { lastValueFrom } from 'rxjs';
+import { MapComponent } from '../map/map.component';
 
 interface PageEvent {
   first: number;
@@ -63,6 +64,7 @@ interface PageEvent {
     MainOccupationComponent,
     UnemployedYouthComponent,
     RoleDirective,
+    MapComponent
   ],
   providers: [MessageService, ConfirmationService, ProductService],
   templateUrl: './villages-demography.component.html',
@@ -174,6 +176,51 @@ export class VillagesDemographyComponent implements OnInit {
     'Bus Shelter': 'bus_shelter.png',
     School: 'schools.png',
   };
+
+  dummySponsers = [
+    {
+      id: 37,
+      amountText: null,
+      firstName: 'Prashanthi',
+      lastName: 'Prashanthi',
+      phoneNumber: '9876543210',
+      email: 'Prashanthi@gmail.com',
+      address: 'Hyderabad',
+      amount: 500000.0,
+      category: null,
+      villageId: null,
+      villageName: null,
+      mandalId: null,
+      mandalName: null,
+      districtId: null,
+      districtName: null,
+      memoryOf: 'Prashanthi',
+      modeOfPayment: 'CASH',
+      description:
+        "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.",
+    },
+    {
+      id: 38,
+      amountText: null,
+      firstName: 'Suraj',
+      lastName: 'Suraj',
+      phoneNumber: '9876543210',
+      email: 'Suraj@gmail.com',
+      address: 'Hyderabad',
+      amount: 700000.0,
+      category: null,
+      villageId: null,
+      villageName: null,
+      mandalId: null,
+      mandalName: null,
+      districtId: null,
+      districtName: null,
+      memoryOf: 'Suraj',
+      modeOfPayment: 'CASH',
+      description:
+        "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.",
+    },
+  ];
 
   constructor(
     private commonService: CommonService,
