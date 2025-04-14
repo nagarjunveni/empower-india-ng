@@ -12,6 +12,7 @@
       optionValue="statusCode"
       placeholder="Select a Status"
       (onChange)="StatusChange($event)"
+      [showClear]="selectedStatus?.length > 0"
     />
 
     <p-dropdown
@@ -21,6 +22,7 @@
       optionLabel="description"
       optionValue="id"
       placeholder="Select a Category"
+      [showClear]="this.selectedcategory?.toString()?.length > 0"
       (onChange)="categoryChange($event)"
     />
     <p-dropdown
@@ -30,6 +32,7 @@
       [(ngModel)]="selectedDistrict"
       optionLabel="name"
       placeholder="Select a District"
+      [showClear]="selectedDistrict?.id"
       (onChange)="getMandals($event)"
     />
     <p-dropdown
@@ -38,6 +41,7 @@
       [(ngModel)]="selectedMandal"
       optionLabel="name"
       placeholder="Select a Mandal"
+      [showClear]="selectedMandal?.id"
       (onChange)="getvilages($event)"
     />
     <p-dropdown
@@ -46,6 +50,7 @@
       [(ngModel)]="selectedVilage"
       optionLabel="name"
       placeholder="Select a Vilage"
+      [showClear]="selectedVilage?.id"
       (onChange)="vilageChange($event)"
     />
     <!-- <span class="p-input-icon-left">
@@ -178,12 +183,18 @@
               src="assets/images/icon-view.svg"
               (click)="getProjectDetails(info)"
             />
+            @if(info.statusCode === 'DRAFT' || info.statusCode === 'WFA') {
             <img
               src="assets/images/icon-edit.svg"
               (click)="editProject(info)"
               *appHasRole="[3, 2]"
             />
-            <img src="assets/images/icon-delete.svg" *appHasRole="[3, 2]" />
+            <img
+              src="assets/images/icon-delete.svg"
+              *appHasRole="[3, 2]"
+              (click)="deleteProject(info.id)"
+            />
+            }
           </div>
         </td>
       </tr>
