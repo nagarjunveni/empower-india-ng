@@ -6,11 +6,12 @@ import { CommonService } from '@service/common.service';
 import { TableModule } from 'primeng/table';
 import { MapViewComponent } from '../map/map-view/map-view.component';
 import { ProgressBarModule } from 'primeng/progressbar';
+import { CardModule } from 'primeng/card';
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [CarouselModule, TableModule, MapViewComponent, ProgressBarModule],
+  imports: [CarouselModule, TableModule, MapViewComponent, ProgressBarModule, CardModule],
   templateUrl: './home.component.html',
   styleUrl: './home.component.scss',
   providers: [ProductService],
@@ -22,6 +23,8 @@ export class HomeComponent {
   responsiveOptions: any[] | undefined;
   responsiveOptionss: any[] | undefined;
   districtProjects: any[] = [];
+  totalProjects: any = {};
+  dashBoardData: any = {};
 
   // constructor(private productService: ProductService) {}
   constructor(
@@ -34,103 +37,7 @@ export class HomeComponent {
     this.getTopSponsers();
     this.getProjectsCountByDistrict();
 
-    // this.topSponsers = [
-    //   {
-    //     id: null,
-    //     firstName: 'Srini ',
-    //     lastName: 'Nannapaneni',
-    //     phoneNumber: '1234567890',
-    //     email: '2343242@gmai.com',
-    //     address: '234324',
-    //     amount: '15,00,000',
-    //     category: null,
-    //     villageId: null,
-    //     villageName: 'Kakarla',
-    //     mandalId: null,
-    //     mandalName: 'Tiruvuru',
-    //     districtId: null,
-    //     districtName: 'NTR',
-    //     memoryOf: null,
-    //     modeOfPayment: null,
-    //     image: '01.png',
-    //   },
-    //   {
-    //     id: null,
-    //     firstName: 'Madhusudhan',
-    //     lastName: '',
-    //     phoneNumber: '1234567890',
-    //     email: '2343242@gmai.com',
-    //     address: '234324',
-    //     amount: '12,00,000',
-    //     category: null,
-    //     villageId: null,
-    //     villageName: 'Kavali',
-    //     mandalId: null,
-    //     mandalName: 'Kavali',
-    //     districtId: null,
-    //     districtName: 'Nellore',
-    //     memoryOf: null,
-    //     modeOfPayment: null,
-    //     image: '05.png',
-    //   },
-    //   {
-    //     id: null,
-    //     firstName: 'Suhasini',
-    //     lastName: '',
-    //     phoneNumber: '1234567890',
-    //     email: '2343242@gmai.com',
-    //     address: '234324',
-    //     amount: '9,00,000',
-    //     category: null,
-    //     villageId: null,
-    //     villageName: 'Samalkota',
-    //     mandalId: null,
-    //     mandalName: 'Samalkot',
-    //     districtId: null,
-    //     districtName: 'East Godavari',
-    //     memoryOf: null,
-    //     modeOfPayment: null,
-    //     image: '09.png',
-    //   },
-    //   {
-    //     id: null,
-    //     firstName: 'Rajani',
-    //     lastName: 'Gandham',
-    //     phoneNumber: '1234567890',
-    //     email: '2343242@gmai.com',
-    //     address: '234324',
-    //     amount: '9,00,000',
-    //     category: null,
-    //     villageId: null,
-    //     villageName: 'Amalapuram',
-    //     mandalId: null,
-    //     mandalName: 'Amalapuram',
-    //     districtId: null,
-    //     districtName: 'East Godavari',
-    //     memoryOf: null,
-    //     modeOfPayment: null,
-    //     image: '16.png',
-    //   },
-    //   {
-    //     id: null,
-    //     firstName: 'Somesh',
-    //     lastName: 'Veera',
-    //     phoneNumber: '1234567890',
-    //     email: '2343242@gmai.com',
-    //     address: '234324',
-    //     amount: '8,50,000',
-    //     category: null,
-    //     villageId: null,
-    //     villageName: 'Avulanatham',
-    //     mandalId: null,
-    //     mandalName: 'Kuppam',
-    //     districtId: null,
-    //     districtName: 'Chittore',
-    //     memoryOf: null,
-    //     modeOfPayment: null,
-    //     image: '18.png',
-    //   },
-    // ];
+    this.getDashboardData();
 
     this.products = [
       {
@@ -288,10 +195,32 @@ export class HomeComponent {
     this.commonService.getProjectsCountByDistrict().subscribe({
       next: (data) => {
         if (data && data.length) {
-          this.districtProjects = data
+          this.districtProjects = data;
+          this.districtProjects = this.districtProjects.map((item) => ({
+            ...item,
+            totalCount: item.completed + item.inprogress + item.waitingForSponsor,
+          }));
+          this.totalProjects = {
+            districtName: 'Total',
+            totalCount: data.reduce((acc, project) => acc + project.totalCount, 0),
+            completed: data.reduce((acc, project) => acc + project.completed, 0),
+            inprogress: data.reduce((acc, project) => acc + project.inprogress, 0),
+            waitingForSponsor: data.reduce((acc, project) => acc + project.waitingForSponsor, 0),
+          }
+
         }
       },
       error: (err) => console.error('An error occurred :', err),
       });
+  }
+
+  getDashboardData() {
+    this.commonService.getDashBoardData().subscribe({
+      next: (data) => {
+        console.log('Dashboard data:', data);
+        this.dashBoardData = data;
+      },
+      error: (err) => console.error('An error occurred :', err),
+    });
   }
 }
