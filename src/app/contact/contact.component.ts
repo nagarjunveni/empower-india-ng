@@ -1,6 +1,4 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
-import { ProductService } from '@service/productservice';
 import { DropdownModule } from 'primeng/dropdown';
 import { ImportsModule } from '../imports';
 import {
@@ -10,8 +8,8 @@ import {
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
-import { ProjectDetailsService } from '@service/project-details.service';
 import { CommonService } from '@service/common.service';
+import { ConfirmationService, MessageService } from 'primeng/api';
 
 @Component({
   selector: 'app-contact',
@@ -19,15 +17,13 @@ import { CommonService } from '@service/common.service';
   imports: [ImportsModule, FormsModule, DropdownModule, ReactiveFormsModule],
   templateUrl: './contact.component.html',
   styleUrl: './contact.component.scss',
-  providers: [ProjectDetailsService, ProductService],
+  providers: [MessageService, ConfirmationService],
 })
 export class ContactComponent implements OnInit {
   contactForm: FormGroup = new FormGroup({});
   constructor(
-    private productService: ProductService,
-    private activatedRoute: ActivatedRoute,
-    private projectDetailsService: ProjectDetailsService,
-    private commonService: CommonService
+    private commonService: CommonService,
+    private messageService: MessageService
   ) {}
 
   ngOnInit() {
@@ -58,7 +54,23 @@ export class ContactComponent implements OnInit {
     };
 
     this.commonService.contactSubmit(payload).subscribe((data) => {
-      if (data) {
+      if (data.status === 200) {
+        this.messageService.add({
+          severity: 'success',
+          summary: 'success',
+          detail:
+            data.error.text ??
+            'Your information has been submitted successfully and we will get back to you soon.',
+        });
+        this.contactForm.reset();
+      } else {
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail:
+            data.error.errorMessage ??
+            'The application has encountered an unknown error. Please try again later.',
+        });
         this.contactForm.reset();
       }
     });

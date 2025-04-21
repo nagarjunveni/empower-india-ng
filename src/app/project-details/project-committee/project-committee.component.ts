@@ -2,7 +2,6 @@ import { Component, Input, OnInit } from '@angular/core';
 import { ButtonModule } from 'primeng/button';
 import { TableModule } from 'primeng/table';
 import { CommonModule } from '@angular/common';
-import { ProductService } from '@service/productservice';
 import { ProjectDetailsService } from '@service/project-details.service';
 import { ImportsModule } from 'src/app/imports';
 import {
@@ -41,7 +40,6 @@ export interface Product {
   ],
   templateUrl: './project-committee.component.html',
   styleUrl: './project-committee.component.scss',
-  providers: [ProjectDetailsService],
 })
 export class ProjectCommitteeComponent implements OnInit {
   @Input() projectData: any;
@@ -51,10 +49,7 @@ export class ProjectCommitteeComponent implements OnInit {
   Committee: any = [];
   editCommitee: boolean = false;
   addEditText = 'Add Governance Body Member';
-  constructor(
-    private productService: ProductService,
-    private projectDetailsService: ProjectDetailsService
-  ) {}
+  constructor(private projectDetailsService: ProjectDetailsService) {}
   ngOnInit() {
     this.createForm();
     this.showCommittee();
@@ -117,7 +112,7 @@ export class ProjectCommitteeComponent implements OnInit {
     this.editCommitee = false;
     this.updatecommitteeForm
       .get('villageId')
-      ?.setValue(this.projectData.villageName);
+      ?.setValue(this.projectData?.villageName);
     this.addEditText = 'Add Governance Body Member';
   }
 
